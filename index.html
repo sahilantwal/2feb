@@ -189,11 +189,18 @@
         color: white;
         min-width: 140px;
         transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        touch-action: none;
+        user-select: none;
     }
     
     #no.moving {
         position: fixed;
         z-index: 1000;
+        pointer-events: none;
+    }
+    
+    #no.moving:hover {
+        pointer-events: auto;
     }
     
     #no:hover {
@@ -266,7 +273,7 @@
             <button id="yes" onclick="showHappy()">
                 <span style="position: relative; z-index: 1;">It's Okay <span class="heart-emoji">❤️</span></span>
             </button>
-            <button id="no" onmouseover="moveNo()" ontouchstart="moveNo()">
+            <button id="no" onmouseover="moveNo()" ontouchstart="moveNo(event)">
                 <span style="position: relative; z-index: 1;">No 😤</span>
             </button>
         </div>
@@ -287,7 +294,29 @@
 <script>
 let moveCount = 0;
 
-function moveNo() {
+// Prevent clicks on the No button
+document.addEventListener('DOMContentLoaded', function() {
+    const noBtn = document.getElementById('no');
+    noBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    });
+    
+    noBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    });
+});
+
+function moveNo(event) {
+    // Prevent default behavior and stop event propagation on touch devices
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
     const btn = document.getElementById("no");
     
     // Add moving class on first move to make it position: fixed
@@ -317,6 +346,8 @@ function moveNo() {
         const yesBtn = document.getElementById("yes");
         yesBtn.style.transform = `scale(${1 + (moveCount - 3) * 0.1})`;
     }
+    
+    return false;
 }
 
 function showHappy() {
